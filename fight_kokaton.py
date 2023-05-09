@@ -8,6 +8,19 @@ import pygame as pg
 WIDTH = 1600  # ゲームウィンドウの幅
 HEIGHT = 900  # ゲームウィンドウの高さ
 
+idx = 0
+black=(0,0,0)
+score=0
+
+def draw_txt(scrn,txt,x,y,siz,col):
+    fnt=pg.font.Font(None,siz)
+    sur = fnt.render(txt,True,col)
+    x=x-sur.get_width()/2
+    y=y-sur.get_height()/2
+    scrn.blit(sur,[x,y])
+    
+
+
 
 def check_bound(area: pg.Rect, obj: pg.Rect) -> tuple[bool, bool]:
     """
@@ -99,16 +112,37 @@ class Bomb:
         爆弾を速度ベクトルself._vx, self._vyに基づき移動させる
         引数 screen：画面Surface
         """
-        yoko, tate = check_bound(screen.get_rect(), self._rct)
-        if not yoko:
-            self._vx *= -1
-        if not tate:
-            self._vy *= -1
-        self._rct.move_ip(self._vx, self._vy)
-        screen.blit(self._img, self._rct)
+        if idx==0:
+            pass
+        else:
+            yoko, tate = check_bound(screen.get_rect(), self._rct)
+            if not yoko:
+                self._vx *= -1
+            if not tate:
+                self._vy *= -1
+            self._rct.move_ip(self._vx, self._vy)
+            screen.blit(self._img, self._rct)
+
+
+
+class Beam:
+    def __init__(self,bird:Bird):
+        self.beam=pg.image.load("ex03/fig/beam.png")
+        self._rct=self.beam.get_rect()
+        self._rct.right=bird._rct.right
+        self._rct.centery=bird._rct.centery
+
+        self._vx,self._vy=+1,0
+
+    def update(self,screen:pg.Surface):
+        self._rct.move_ip(self._vx,self._vy)
+        screen.blit(self.beam,self._rct)
+        
+
 
 
 def main():
+    global idx,score
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     clock = pg.time.Clock()
@@ -116,25 +150,51 @@ def main():
 
     bird = Bird(3, (900, 400))
     bomb = Bomb((255, 0, 0), 10)
+    beam = None
 
     tmr = 0
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
+            if event.type == pg.KEYDOWN:
+                if event.key==pg.K_SPACE:
+                    beam=Beam(bird)
+                    #beams.append(beam)
+        
         tmr += 1
         screen.blit(bg_img, [0, 0])
-        
-        if bird._rct.colliderect(bomb._rct):
-            # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
-            bird.change_img(8, screen)
+
+        key=pg.key.get_pressed()
+
+        if idx==0:
+            draw_txt(screen,"Space Invaders",900,300,50,black)
+            draw_txt(screen,"Press 1 to start",900,600,50,black)
+        if key[pg.K_1]==1:
             pg.display.update()
-            time.sleep(1)
-            return
+            time.sleep(0.01)
+            idx=1
+            score=0
+            bird=Bird(3,(900,400))
+            bomb=Bomb((255,0,0),10)
+        
+        if bomb is not None:
+            bomb.update(screen)
+            if bird._rct.colliderect(bomb._rct):
+                # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
+                bird.change_img(8, screen)
+                pg.display.update()
+                time.sleep(1)
+                return
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
-        bomb.update(screen)
+        #bomb.update(screen)
+        if beam is not None:
+            beam.update(screen)
+            if bomb is not None and beam._rct.colliderect(bomb._rct):
+                beam = None
+                bomb = None
         pg.display.update()
         clock.tick(1000)
 
