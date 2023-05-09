@@ -9,6 +9,7 @@ NUM_OF_BOMBS = 5  # 爆弾の数
 idx=0
 black=(0,0,0)
 score=0
+scoretxt=""
 
 def draw_txt(scrn,txt,x,y,siz,col):
     fnt=pg.font.Font(None,siz)
@@ -140,7 +141,7 @@ class Beam:
         self._rct.move_ip(self._vx, self._vy)
         screen.blit(self._img, self._rct)
 def main():
-    global idx,score
+    global idx,score,scoretxt
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     clock = pg.time.Clock()
@@ -167,9 +168,11 @@ def main():
             draw_txt(screen,"Press 1 to start",900,600,50,black)
         if key[pg.K_1]==1:
             pg.display.update()
-            time.sleep(0.01)
             idx=1
             score=0
+        if idx==1:
+            draw_txt(screen,"score",50,50,50,black)
+            draw_txt(screen,scoretxt,150,50,50,black)
 
 
         for bomb in bombs:
@@ -189,6 +192,8 @@ def main():
             for i, bomb in enumerate(bombs):
                 if beam._rct.colliderect(bomb._rct):
                     beam = None
+                    score+=1
+                    scoretxt=str(score)
                     del bombs[i]
                     bird.change_img(6, screen)
                     break
