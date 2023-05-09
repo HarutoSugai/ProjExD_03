@@ -163,6 +163,11 @@ def main():
 
         key=pg.key.get_pressed()
 
+        if idx==1:
+            draw_txt(screen,"score",50,50,50,black)
+            draw_txt(screen,scoretxt,150,50,50,black)
+
+
         if idx==0:
             draw_txt(screen,"Space Invaders",900,300,50,black)
             draw_txt(screen,"Press 1 to start",900,600,50,black)
@@ -170,9 +175,7 @@ def main():
             pg.display.update()
             idx=1
             score=0
-        if idx==1:
-            draw_txt(screen,"score",50,50,50,black)
-            draw_txt(screen,scoretxt,150,50,50,black)
+        
 
 
         for bomb in bombs:
