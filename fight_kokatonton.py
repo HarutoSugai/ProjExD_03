@@ -178,11 +178,12 @@ def main():
         for bomb in bombs:
             bomb.update(screen)
             if bird._rct.colliderect(bomb._rct)and idx==1:
+                if not ((score==5 or(score>5 and score%5==0))and tmr<100):
                 # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
-                bird.change_img(8, screen)
-                pg.display.update()
-                time.sleep(1)
-                return
+                    bird.change_img(8, screen)
+                    pg.display.update()
+                    time.sleep(1)
+                    return
             
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
@@ -197,6 +198,17 @@ def main():
                     del bombs[i]
                     bird.change_img(6, screen)
                     break
+
+        if score==5 or (score>5 and score%5==0):
+            tmr=0
+            if score==5 and tmr<100:
+                draw_txt(screen,"Endress mode   [Press SPACE]",500,300,80,black)
+                
+
+                bombs = [Bomb() for _ in range(NUM_OF_BOMBS)]
+                for bomb in bombs:
+                    bomb.update(screen)
+
 
         pg.display.update()
         clock.tick(1000)
