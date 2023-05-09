@@ -9,6 +9,7 @@ NUM_OF_BOMBS = 5  # 爆弾の数
 idx=0
 black=(0,0,0)
 score=0
+scoretxt=""
 
 def draw_txt(scrn,txt,x,y,siz,col):
     fnt=pg.font.Font(None,siz)
@@ -140,7 +141,7 @@ class Beam:
         self._rct.move_ip(self._vx, self._vy)
         screen.blit(self._img, self._rct)
 def main():
-    global idx,score
+    global idx,score,scoretxt
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     clock = pg.time.Clock()
@@ -167,19 +168,22 @@ def main():
             draw_txt(screen,"Press 1 to start",900,600,50,black)
         if key[pg.K_1]==1:
             pg.display.update()
-            time.sleep(0.01)
             idx=1
             score=0
+        if idx==1:
+            draw_txt(screen,"score",50,50,50,black)
+            draw_txt(screen,scoretxt,150,50,50,black)
 
 
         for bomb in bombs:
             bomb.update(screen)
             if bird._rct.colliderect(bomb._rct)and idx==1:
+                if not ((score==5 or(score>5 and score%5==0))and tmr<100):
                 # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
-                bird.change_img(8, screen)
-                pg.display.update()
-                time.sleep(1)
-                return
+                    bird.change_img(8, screen)
+                    pg.display.update()
+                    time.sleep(1)
+                    return
             
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
@@ -189,9 +193,22 @@ def main():
             for i, bomb in enumerate(bombs):
                 if beam._rct.colliderect(bomb._rct):
                     beam = None
+                    score+=1
+                    scoretxt=str(score)
                     del bombs[i]
                     bird.change_img(6, screen)
                     break
+
+        if score==5 or (score>5 and score%5==0):
+            tmr=0
+            if score==5 and tmr<100:
+                draw_txt(screen,"Endress mode   [Press SPACE]",500,300,80,black)
+                
+
+                bombs = [Bomb() for _ in range(NUM_OF_BOMBS)]
+                for bomb in bombs:
+                    bomb.update(screen)
+
 
         pg.display.update()
         clock.tick(1000)
